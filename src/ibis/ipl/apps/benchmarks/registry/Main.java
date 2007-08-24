@@ -63,7 +63,7 @@ public final class Main {
 		while (true) {
 			try {
 				main.printStats();
-				Thread.sleep(1000);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				// IGNORE
 			}
