@@ -77,14 +77,17 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
 
     public synchronized void joined(IbisIdentifier ident) {
         ibisses.add(ident);
+        System.err.println("upcall for join of: " + ident);
     }
 
     public void left(IbisIdentifier ident) {
         ibisses.remove(ident);
+        System.err.println("upcall for leave of: " + ident);
     }
 
     public void died(IbisIdentifier corpse) {
         ibisses.remove(corpse);
+        System.err.println("upcall for died of: " + corpse);
     }
 
     public void gotSignal(String signal) {
@@ -153,16 +156,22 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
     }
 
     public void run() {
-        try {
-            if (!generateEvents) {
+        if (!generateEvents) {
+            try {
+
                 Ibis ibis = join();
                 waitUntilStopped();
                 ibis.end();
                 return;
+            } catch (Exception e) {
+                logger.error("error in  application", e);
+                return;
             }
+        }
 
-            // start Ibis, generate events, stop Ibis, repeat
-            while (true) {
+        // start Ibis, generate events, stop Ibis, repeat
+        while (true) {
+            try {
                 Ibis ibis = join();
 
                 // generate events, stop when we left
@@ -172,17 +181,33 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
                         ibis.end();
                         return;
                     }
+                    synchronized (this) {
+                        try {
+                            wait(10000);
+                        } catch (InterruptedException e) {
+                            // IGNORE
+                        }
+                    }
+                    if (stopped()) {
+                        ibis.end();
+                        return;
+                    }
 
-                    Thread.sleep(10000);
+                    int nextCase;
+                    if (generateLeaves) {
+                        nextCase = random.nextInt(8);
+                    } else {
+                        // leave out last two cases, which cause ibisses to
+                        // leave
+                        nextCase = random.nextInt(6);
+                    }
 
-                    int nextCase = random.nextInt(8);
                     switch (nextCase) {
                     case 0:
-                        if (generateLeaves) {
-                            logger.debug("doing leave");
-                            ibis.end();
-                            left = true;
-                        }
+                        logger.debug("signalling random member(s)");
+                        IbisIdentifier[] signalList = getRandomIbisses();
+
+                        ibis.registry().signal("ARRG to you all!", signalList);
                         break;
                     case 1:
                         logger.debug("doing elect");
@@ -190,9 +215,9 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
                         break;
                     case 2:
                         logger.debug("doing getElectionResult");
-                        //make sure this election exists
+                        // make sure this election exists
                         ibis.registry().elect("bla");
-                        
+
                         IbisIdentifier id2 =
                                 ibis.registry().getElectionResult("bla");
                         break;
@@ -210,16 +235,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
                         }
                         break;
                     case 5:
-                        logger.debug("doing assumeDead() on random ibis");
-                        if (generateLeaves) {
-                            IbisIdentifier victim = getRandomIbis();
-
-                            if (victim != null) {
-                                ibis.registry().assumeDead(victim);
-                            }
-                        }
-                        break;
-                    case 6:
                         logger.debug("signalling random member");
                         IbisIdentifier signallee = getRandomIbis();
 
@@ -227,24 +242,30 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
                             ibis.registry().signal("ARRG!", signallee);
                         }
                         break;
-                    case 7:
-                        logger.debug("signalling random member(s)");
-                        IbisIdentifier[] signalList = getRandomIbisses();
+                    case 6:
+                        logger.debug("doing assumeDead() on random ibis");
+                        IbisIdentifier victim = getRandomIbis();
 
-                        ibis.registry().signal("ARRG to you all!", signalList);
+                        if (victim != null) {
+                            ibis.registry().assumeDead(victim);
+                        }
+
+                        break;
+                    case 7:
+                        logger.debug("doing leave");
+                        ibis.end();
+                        left = true;
                         break;
                     default:
                         logger.error("unknown case: " + nextCase);
                     }
-                    
+
                     System.out.println("done");
 
                 }
+            } catch (Exception e) {
+                logger.error("error in  application", e);
             }
-
-        } catch (Exception e) {
-            logger.error("error in  application", e);
-            return;
         }
 
     }
