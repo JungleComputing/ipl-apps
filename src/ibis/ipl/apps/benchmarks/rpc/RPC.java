@@ -632,7 +632,11 @@ class RPC implements MessageUpcall, Runnable, ReceivePortConnectUpcall,
             HashMap<String, String> dp = new HashMap<String, String>();
             dp.put("InputBufferSize", "" + BUFSIZ);
             dp.put("OutputBufferSize", "" + BUFSIZ);
-            sport.setDynamicProperties(dp);
+            try {
+                sport.setDynamicProperties(dp);
+            } catch(Throwable e) {
+                // ignored
+            }
         }
 
         registry.enableEvents();
@@ -650,7 +654,11 @@ class RPC implements MessageUpcall, Runnable, ReceivePortConnectUpcall,
             HashMap<String, String> dp = new HashMap<String, String>();
             dp.put("InputBufferSize", "" + BUFSIZ);
             dp.put("OutputBufferSize", "" + BUFSIZ);
-            rport.setDynamicProperties(dp);
+            try {
+                rport.setDynamicProperties(dp);
+            } catch(Throwable e) {
+                // ignored
+            }
         }
         rport.enableConnections();
 
@@ -710,7 +718,11 @@ class RPC implements MessageUpcall, Runnable, ReceivePortConnectUpcall,
             HashMap<String, String> dp = new HashMap<String, String>();
             dp.put("InputBufferSize", "" + BUFSIZ);
             dp.put("OutputBufferSize", "" + BUFSIZ);
-            sport.setDynamicProperties(dp);
+            try {
+                sport.setDynamicProperties(dp);
+            } catch(Throwable e) {
+                // ignored
+            }
         }
 
         registry.enableEvents();
@@ -738,7 +750,11 @@ class RPC implements MessageUpcall, Runnable, ReceivePortConnectUpcall,
             HashMap<String, String> dp = new HashMap<String, String>();
             dp.put("InputBufferSize", "" + BUFSIZ);
             dp.put("OutputBufferSize", "" + BUFSIZ);
-            rport.setDynamicProperties(dp);
+            try {
+                rport.setDynamicProperties(dp);
+            } catch(Throwable e) {
+                // ignored
+            }
         }
 
         rport.enableConnections();
