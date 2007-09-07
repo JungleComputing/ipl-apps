@@ -77,21 +77,21 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
 
     public synchronized void joined(IbisIdentifier ident) {
         ibisses.add(ident);
-        System.err.println("upcall for join of: " + ident);
+        logger.info("upcall for join of: " + ident);
     }
 
     public void left(IbisIdentifier ident) {
         ibisses.remove(ident);
-        System.err.println("upcall for leave of: " + ident);
+        logger.info("upcall for leave of: " + ident);
     }
 
     public void died(IbisIdentifier corpse) {
         ibisses.remove(corpse);
-        System.err.println("upcall for died of: " + corpse);
+        logger.info("upcall for died of: " + corpse);
     }
 
     public void gotSignal(String signal) {
-        System.err.println("got signal: " + signal);
+        logger.info("got signal: " + signal);
     }
 
     private static class Shutdown extends Thread {
@@ -260,7 +260,7 @@ final class IbisApplication implements Runnable, RegistryEventHandler {
                         logger.error("unknown case: " + nextCase);
                     }
 
-                    System.out.println("done");
+                    logger.info("done");
 
                 }
             } catch (Exception e) {

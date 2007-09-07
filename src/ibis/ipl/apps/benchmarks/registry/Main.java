@@ -1,5 +1,8 @@
 package ibis.ipl.apps.benchmarks.registry;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import ibis.util.Log;
 
 import org.apache.log4j.Level;
@@ -32,7 +35,9 @@ public final class Main {
 		}
 		double average = (double) totalSeen / (double) apps.length;
 
-		System.out.printf("average seen members = %.2f  (total = %d)\n",
+                String date = DateFormat.getTimeInstance().format(new Date(System.currentTimeMillis()));
+                
+		System.out.printf(date + " average seen members = %.2f\n",
 				average, apps.length);
 	}
 
@@ -41,7 +46,7 @@ public final class Main {
 		boolean generateEvents = false;
 		boolean generateLeaves = false;
 
-		Log.initLog4J("ibis.ipl.apps", Level.INFO);
+		Log.initLog4J("ibis.ipl.apps", Level.ERROR);
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--threads")) {
