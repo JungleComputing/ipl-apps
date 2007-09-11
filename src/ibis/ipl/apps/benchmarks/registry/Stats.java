@@ -35,8 +35,9 @@ public class Stats implements Serializable {
 	private final List<Point> data;
 	private final long start;
 	
-	Stats(IbisIdentifier ibis) {
+	Stats(IbisIdentifier ibis, long start) {
 		this.ibis = ibis;
+		this.start = start;
 		
 		start = System.currentTimeMillis();
 		data = new LinkedList<Point>();

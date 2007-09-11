@@ -49,7 +49,7 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 	
 	private final Map<IbisIdentifier, Stats> gatheredStats;
 
-	IbisApplication(boolean generateEvents) throws IbisCreationFailedException,
+	IbisApplication(boolean generateEvents, long startTime) throws IbisCreationFailedException,
 			IOException {
 		this.generateEvents = generateEvents;
 		gatheredStats = new HashMap<IbisIdentifier, Stats>();
@@ -68,7 +68,7 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 		
 		logger.debug("ibis created, enabling upcalls");
 		
-		stats = new Stats(ibis.identifier());
+		stats = new Stats(ibis.identifier(), startTime);
 
 		ibis.registry().enableEvents();
 		logger.debug("upcalls enabled");
@@ -123,7 +123,7 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         writer.println("//(seconds)");
 
         long currentTime = stats.currentTime();
-        long interval = currentTime / 25;
+        long interval = 1000;
         
         for(int i = 0; i < currentTime; i+= interval) {
         	long total = 0;

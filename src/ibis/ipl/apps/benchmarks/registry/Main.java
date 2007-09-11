@@ -21,11 +21,13 @@ public final class Main {
 
 	Main(int threads, boolean generateEvents) throws Exception {
 		this.generateEvents = generateEvents;
+		
+		long start = System.currentTimeMillis();
 
 		apps = new IbisApplication[threads];
 		for (int i = 0; i < threads; i++) {
 			logger.debug("starting thread " + i + " of " + threads);
-			apps[i] = new IbisApplication(generateEvents);
+			apps[i] = new IbisApplication(generateEvents, start);
 		}
 	}
 
