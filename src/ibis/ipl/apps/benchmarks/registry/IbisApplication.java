@@ -332,7 +332,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 		gatheredStats.put(stats.getIbis(), stats);
 	}
 
-	@Override
 	public void upcall(ReadMessage readMessage) throws IOException {
 		Stats stats;
 		try {
