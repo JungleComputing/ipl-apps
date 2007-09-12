@@ -92,7 +92,7 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         ThreadPool.createNew(this, "application");
     }
 
-    private void sendStats() {
+    private synchronized void sendStats() {
         try {
             IbisIdentifier master = ibis.registry().elect("master");
 
@@ -189,7 +189,7 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         }
     }
 
-    public int nrOfIbisses() {
+    public synchronized int nrOfIbisses() {
         return ibisses.size();
     }
 
@@ -347,8 +347,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 
         readMessage.finish();
 
-        synchronized (this) {
-            receivedStats(stats);
-        }
+        receivedStats(stats);
     }
 }
