@@ -28,323 +28,327 @@ import ibis.util.ThreadPool;
 import org.apache.log4j.Logger;
 
 final class IbisApplication implements Runnable, RegistryEventHandler,
-		MessageUpcall {
+        MessageUpcall {
 
-	private static final Logger logger = Logger
-			.getLogger(IbisApplication.class);
+    private static final Logger logger =
+            Logger.getLogger(IbisApplication.class);
 
-	private final boolean generateEvents;
+    private final boolean generateEvents;
 
-	private Set<IbisIdentifier> ibisses;
+    private Set<IbisIdentifier> ibisses;
 
-	private boolean stopped = false;
+    private boolean stopped = false;
 
-	private final Random random;
+    private final Random random;
 
-	private final Ibis ibis;
-	private final PortType portType;
-	private final ReceivePort receivePort;
+    private final Ibis ibis;
 
-	private final Stats stats;
-	
-	private final Map<IbisIdentifier, Stats> gatheredStats;
+    private final PortType portType;
 
-	IbisApplication(boolean generateEvents, long startTime) throws IbisCreationFailedException,
-			IOException {
-		this.generateEvents = generateEvents;
-		gatheredStats = new HashMap<IbisIdentifier, Stats>();
+    private final ReceivePort receivePort;
 
-		ibisses = new HashSet<IbisIdentifier>();
-		random = new Random();
+    private final Stats stats;
 
-		portType = new PortType(PortType.CONNECTION_MANY_TO_ONE,
-				PortType.SERIALIZATION_OBJECT, PortType.RECEIVE_AUTO_UPCALLS);
+    private final Map<IbisIdentifier, Stats> gatheredStats;
 
-		IbisCapabilities s = new IbisCapabilities(IbisCapabilities.MEMBERSHIP,
-				IbisCapabilities.ELECTIONS, IbisCapabilities.SIGNALS);
+    IbisApplication(boolean generateEvents, long startTime)
+            throws IbisCreationFailedException, IOException {
+        this.generateEvents = generateEvents;
+        gatheredStats = new HashMap<IbisIdentifier, Stats>();
 
-		logger.debug("creating ibis");
-		ibis = IbisFactory.createIbis(s, null, true, this, portType);
-		
-		logger.debug("ibis created, enabling upcalls");
-		
-		stats = new Stats(ibis.identifier(), startTime);
+        ibisses = new HashSet<IbisIdentifier>();
+        random = new Random();
 
-		ibis.registry().enableEvents();
-		logger.debug("upcalls enabled");
+        portType =
+                new PortType(PortType.CONNECTION_MANY_TO_ONE,
+                        PortType.SERIALIZATION_OBJECT,
+                        PortType.RECEIVE_AUTO_UPCALLS);
 
-		receivePort = ibis.createReceivePort(portType, "stats", this);
-		receivePort.enableConnections();
-		receivePort.enableMessageUpcalls();
+        IbisCapabilities s =
+                new IbisCapabilities(IbisCapabilities.MEMBERSHIP,
+                        IbisCapabilities.ELECTIONS, IbisCapabilities.SIGNALS);
 
-		// register shutdown hook
-		try {
-			Runtime.getRuntime().addShutdownHook(new Shutdown(this));
-		} catch (Exception e) {
-			// IGNORE
-		}
+        logger.debug("creating ibis");
+        ibis = IbisFactory.createIbis(s, null, true, this, portType);
 
-		ThreadPool.createNew(this, "application");
-	}
+        logger.debug("ibis created, enabling upcalls");
 
-	private void sendStats() {
-		try {
-			IbisIdentifier master = ibis.registry().elect("master");
+        stats = new Stats(ibis.identifier(), startTime);
 
-			SendPort sendPort = ibis.createSendPort(portType);
-			sendPort.connect(master, "stats");
+        ibis.registry().enableEvents();
+        logger.debug("upcalls enabled");
 
-			WriteMessage message = sendPort.newMessage();
-			message.writeObject(stats);
+        receivePort = ibis.createReceivePort(portType, "stats", this);
+        receivePort.enableConnections();
+        receivePort.enableMessageUpcalls();
 
-			message.finish();
-			sendPort.close();
+        // register shutdown hook
+        try {
+            Runtime.getRuntime().addShutdownHook(new Shutdown(this));
+        } catch (Exception e) {
+            // IGNORE
+        }
 
-		} catch (Exception e) {
-			// IGNORE
-		}
-	}
-	
-	private synchronized void writeStats() throws FileNotFoundException {
-		if (gatheredStats.isEmpty()) {
-			return;
-		}
-		
-		File file = new File("stats");
-		if (file.exists()) {
-		file.renameTo(new File("stats.old"));
-		}
-		
-		PrintWriter writer = new PrintWriter(file);
+        ThreadPool.createNew(this, "application");
+    }
 
-        writer.println("stats at "
-                + new Date(System.currentTimeMillis()));
+    private void sendStats() {
+        try {
+            IbisIdentifier master = ibis.registry().elect("master");
+
+            SendPort sendPort = ibis.createSendPort(portType);
+            sendPort.connect(master, "stats");
+
+            WriteMessage message = sendPort.newMessage();
+            message.writeObject(stats);
+
+            message.finish();
+            sendPort.close();
+
+        } catch (Exception e) {
+            // IGNORE
+        }
+    }
+
+    private synchronized void writeStats() throws FileNotFoundException {
+        if (gatheredStats.isEmpty()) {
+            return;
+        }
+
+        File file = new File("stats");
+        if (file.exists()) {
+            file.renameTo(new File("stats.old"));
+        }
+
+        PrintWriter writer = new PrintWriter(file);
+
+        writer.println("stats at " + new Date(System.currentTimeMillis()));
         writer.println("//  time   -  number of ibisses");
         writer.println("//(seconds)");
 
         long currentTime = stats.currentTime();
         long interval = 1000;
-        
-        for(int i = 0; i < currentTime; i+= interval) {
-        	long total = 0;
-        	for (Stats s: gatheredStats.values()) {
-        		total += s.valueAt(i);
-        	}
-        	double value = (double) total / (double) gatheredStats.size();
-        	
-        	writer.printf("%d  %.4f\n", i, value);
-        	
+
+        for (int i = 0; i < currentTime; i += interval) {
+            long total = 0;
+            for (Stats s : gatheredStats.values()) {
+                total += s.valueAt(i);
+            }
+            double value = (double) total / (double) gatheredStats.size();
+
+            writer.printf("%d  %.4f\n", i, value);
+
         }
         writer.close();
-		
-	}
-		
 
-	private synchronized boolean stopped() {
-		return stopped;
-	}
+    }
 
-	synchronized void end() {
-		stopped = true;
-		notifyAll();
+    private synchronized boolean stopped() {
+        return stopped;
+    }
 
-	}
+    synchronized void end() {
+        stopped = true;
+        notifyAll();
 
-	public synchronized void joined(IbisIdentifier ident) {
-		ibisses.add(ident);
-		stats.update(ibisses.size());
-		logger.info("upcall for join of: " + ident);
-	}
+    }
 
-	public synchronized void left(IbisIdentifier ident) {
-		ibisses.remove(ident);
-		stats.update(ibisses.size());
-		logger.info("upcall for leave of: " + ident);
-	}
+    public synchronized void joined(IbisIdentifier ident) {
+        ibisses.add(ident);
+        stats.update(ibisses.size());
+        logger.info("upcall for join of: " + ident);
+    }
 
-	public synchronized void died(IbisIdentifier corpse) {
-		ibisses.remove(corpse);
-		stats.update(ibisses.size());
-		logger.info("upcall for died of: " + corpse);
-	}
+    public synchronized void left(IbisIdentifier ident) {
+        ibisses.remove(ident);
+        stats.update(ibisses.size());
+        logger.info("upcall for leave of: " + ident);
+    }
 
-	public synchronized void gotSignal(String signal) {
-		logger.info("got signal: " + signal);
-	}
+    public synchronized void died(IbisIdentifier corpse) {
+        ibisses.remove(corpse);
+        stats.update(ibisses.size());
+        logger.info("upcall for died of: " + corpse);
+    }
 
-	private static class Shutdown extends Thread {
-		private final IbisApplication app;
+    public synchronized void gotSignal(String signal) {
+        logger.info("got signal: " + signal);
+    }
 
-		Shutdown(IbisApplication app) {
-			this.app = app;
-		}
+    private static class Shutdown extends Thread {
+        private final IbisApplication app;
 
-		public void run() {
-			System.err.println("shutdown hook triggered");
+        Shutdown(IbisApplication app) {
+            this.app = app;
+        }
 
-			app.end();
-		}
-	}
+        public void run() {
+            System.err.println("shutdown hook triggered");
 
-	public int nrOfIbisses() {
-		return ibisses.size();
-	}
+            app.end();
+        }
+    }
 
-	private synchronized void waitUntilStopped() {
-		while (!stopped) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// IGNORE
-			}
-		}
-	}
+    public int nrOfIbisses() {
+        return ibisses.size();
+    }
 
-	private synchronized IbisIdentifier getRandomIbis() {
-		if (ibisses.isEmpty()) {
-			return null;
-		}
+    private synchronized void waitUntilStopped() {
+        while (!stopped) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                // IGNORE
+            }
+        }
+    }
 
-		int element = random.nextInt(ibisses.size());
+    private synchronized IbisIdentifier getRandomIbis() {
+        if (ibisses.isEmpty()) {
+            return null;
+        }
 
-		for (IbisIdentifier ibis : ibisses) {
-			if (element == 0) {
-				return ibis;
-			}
-			element--;
-		}
+        int element = random.nextInt(ibisses.size());
 
-		return null;
-	}
+        for (IbisIdentifier ibis : ibisses) {
+            if (element == 0) {
+                return ibis;
+            }
+            element--;
+        }
 
-	// get random ibisses. May/will contain some duplicates :)
-	private synchronized IbisIdentifier[] getRandomIbisses() {
-		if (nrOfIbisses() == 0) {
-			return new IbisIdentifier[0];
-		}
+        return null;
+    }
 
-		IbisIdentifier[] result = new IbisIdentifier[random
-				.nextInt(nrOfIbisses())];
+    // get random ibisses. May/will contain some duplicates :)
+    private synchronized IbisIdentifier[] getRandomIbisses() {
+        if (nrOfIbisses() == 0) {
+            return new IbisIdentifier[0];
+        }
 
-		for (int i = 0; i < result.length; i++) {
-			result[i] = getRandomIbis();
-		}
+        IbisIdentifier[] result =
+                new IbisIdentifier[random.nextInt(nrOfIbisses())];
 
-		return result;
-	}
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getRandomIbis();
+        }
 
-	void doElect(String id) throws IOException {
-		ibis.registry().elect(id);
-	}
+        return result;
+    }
 
-	void getElectionResult(String id) throws IOException {
-		ibis.registry().getElectionResult(id);
-	}
+    void doElect(String id) throws IOException {
+        ibis.registry().elect(id);
+    }
 
-	public void run() {
-		// start Ibis, generate events, stop Ibis, repeat
-		while (true) {
-			try {
-				while (true) {
-					if (stopped()) {
-						ibis.end();
-						return;
-					}
+    void getElectionResult(String id) throws IOException {
+        ibis.registry().getElectionResult(id);
+    }
 
-					synchronized (this) {
-						try {
-							wait(10000);
-						} catch (InterruptedException e) {
-							// IGNORE
-						}
-					}
-					
-					if (stopped()) {
-						ibis.end();
-						return;
-					}
-					
-					sendStats();
-					writeStats();
+    public void run() {
+        // start Ibis, generate events, stop Ibis, repeat
+        while (true) {
+            try {
+                while (true) {
+                    if (stopped()) {
+                        ibis.end();
+                        return;
+                    }
 
-					if (generateEvents) {
+                    synchronized (this) {
+                        try {
+                            wait(10000);
+                        } catch (InterruptedException e) {
+                            // IGNORE
+                        }
+                    }
 
-						int nextCase = random.nextInt(6);
+                    if (stopped()) {
+                        ibis.end();
+                        return;
+                    }
 
-						switch (nextCase) {
-						case 0:
-							logger.debug("signalling random member(s)");
-							IbisIdentifier[] signalList = getRandomIbisses();
+                    sendStats();
+                    writeStats();
 
-							ibis.registry().signal("ARRG to you all!",
-									signalList);
-							break;
-						case 1:
-							logger.debug("doing elect");
-							IbisIdentifier id1 = ibis.registry().elect("bla");
-							break;
-						case 2:
-							logger.debug("doing getElectionResult");
-							// make sure this election exists
-							ibis.registry().elect("bla");
+                    if (generateEvents) {
 
-							IbisIdentifier id2 = ibis.registry()
-									.getElectionResult("bla");
-							break;
-						case 3:
-							logger
-									.debug("doing getElectionResult with timeout");
-							IbisIdentifier id3 = ibis.registry()
-									.getElectionResult("bla", 100);
-							logger.debug("done getElectionResult with timeout");
-							break;
-						case 4:
-							logger.debug("doing maybeDead() on random ibis");
-							IbisIdentifier suspect = getRandomIbis();
-							if (suspect != null) {
-								ibis.registry().maybeDead(suspect);
-							}
-							break;
-						case 5:
-							logger.debug("signalling random member");
-							IbisIdentifier signallee = getRandomIbis();
+                        int nextCase = random.nextInt(6);
 
-							if (signallee != null) {
-								ibis.registry().signal("ARRG!", signallee);
-							}
-							break;
-						default:
-							logger.error("unknown case: " + nextCase);
-						}
+                        switch (nextCase) {
+                        case 0:
+                            logger.debug("signalling random member(s)");
+                            IbisIdentifier[] signalList = getRandomIbisses();
 
-						logger.info("done");
-					}
+                            ibis.registry().signal("ARRG to you all!",
+                                    signalList);
+                            break;
+                        case 1:
+                            logger.debug("doing elect");
+                            IbisIdentifier id1 = ibis.registry().elect("bla");
+                            break;
+                        case 2:
+                            logger.debug("doing getElectionResult");
+                            // make sure this election exists
+                            ibis.registry().elect("bla");
 
-				}
-			} catch (Exception e) {
-				logger.error("error in  application", e);
-			}
-		}
+                            IbisIdentifier id2 =
+                                    ibis.registry().getElectionResult("bla");
+                            break;
+                        case 3:
+                            logger
+                                    .debug("doing getElectionResult with timeout");
+                            IbisIdentifier id3 =
+                                    ibis.registry().getElectionResult("bla",
+                                            100);
+                            logger.debug("done getElectionResult with timeout");
+                            break;
+                        case 4:
+                            logger.debug("doing maybeDead() on random ibis");
+                            IbisIdentifier suspect = getRandomIbis();
+                            if (suspect != null) {
+                                ibis.registry().maybeDead(suspect);
+                            }
+                            break;
+                        case 5:
+                            logger.debug("signalling random member");
+                            IbisIdentifier signallee = getRandomIbis();
 
-	}
-	
-	private synchronized void receivedStats(Stats stats) {
-		gatheredStats.put(stats.getIbis(), stats);
-	}
+                            if (signallee != null) {
+                                ibis.registry().signal("ARRG!", signallee);
+                            }
+                            break;
+                        default:
+                            logger.error("unknown case: " + nextCase);
+                        }
 
-	public void upcall(ReadMessage readMessage) throws IOException {
-		Stats stats;
-		try {
-			stats = (Stats) readMessage.readObject();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
+                        logger.info("done");
+                    }
 
-		readMessage.finish();
+                }
+            } catch (Exception e) {
+                logger.error("error in  application", e);
+            }
+        }
 
-		synchronized(this) {
-			receivedStats(stats);
-		}
-	}
+    }
+
+    private synchronized void receivedStats(Stats stats) {
+        gatheredStats.put(stats.getIbis(), stats);
+    }
+
+    public void upcall(ReadMessage readMessage) throws IOException {
+        Stats stats;
+        try {
+            stats = (Stats) readMessage.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        readMessage.finish();
+
+        synchronized (this) {
+            receivedStats(stats);
+        }
+    }
 }

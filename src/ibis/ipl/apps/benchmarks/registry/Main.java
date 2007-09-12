@@ -13,95 +13,96 @@ import org.apache.log4j.Logger;
 
 public final class Main {
 
-	private static final Logger logger = Logger.getLogger(Main.class);
+    private static final Logger logger = Logger.getLogger(Main.class);
 
-	private final IbisApplication[] apps;
+    private final IbisApplication[] apps;
 
-	private final boolean generateEvents;
+    private final boolean generateEvents;
 
-	Main(int threads, boolean generateEvents) throws Exception {
-		this.generateEvents = generateEvents;
-		
-		long start = System.currentTimeMillis();
+    Main(int threads, boolean generateEvents) throws Exception {
+        this.generateEvents = generateEvents;
 
-		apps = new IbisApplication[threads];
-		for (int i = 0; i < threads; i++) {
-			logger.debug("starting thread " + i + " of " + threads);
-			apps[i] = new IbisApplication(generateEvents, start);
-		}
-	}
+        long start = System.currentTimeMillis();
 
-	void printStats() {
-		int totalSeen = 0;
-		for (int i = 0; i < apps.length; i++) {
-			totalSeen += apps[i].nrOfIbisses();
-		}
-		double average = (double) totalSeen / (double) apps.length;
+        apps = new IbisApplication[threads];
+        for (int i = 0; i < threads; i++) {
+            logger.debug("starting thread " + i + " of " + threads);
+            apps[i] = new IbisApplication(generateEvents, start);
+        }
+    }
 
-		String date = DateFormat.getTimeInstance().format(
-				new Date(System.currentTimeMillis()));
+    void printStats() {
+        int totalSeen = 0;
+        for (int i = 0; i < apps.length; i++) {
+            totalSeen += apps[i].nrOfIbisses();
+        }
+        double average = (double) totalSeen / (double) apps.length;
 
-		System.out.printf(date + " average seen members = %.2f\n", average,
-				apps.length);
-	}
+        String date =
+                DateFormat.getTimeInstance().format(
+                        new Date(System.currentTimeMillis()));
 
-	void measureDelay() throws IOException {
-		Random random = new Random();
+        System.out.printf(date + " average seen members = %.2f\n", average,
+                apps.length);
+    }
 
-		String id = Long.toString(random.nextLong());
+    void measureDelay() throws IOException {
+        Random random = new Random();
 
-		logger.debug("running election: " + id);
+        String id = Long.toString(random.nextLong());
 
-		long start = System.currentTimeMillis();
+        logger.debug("running election: " + id);
 
-		apps[0].doElect(id);
+        long start = System.currentTimeMillis();
 
-		long middle = System.currentTimeMillis();
+        apps[0].doElect(id);
 
-		for (int i = 0; i < apps.length; i++) {
-			apps[i].getElectionResult(id);
-		}
+        long middle = System.currentTimeMillis();
 
-		long end = System.currentTimeMillis();
+        for (int i = 0; i < apps.length; i++) {
+            apps[i].getElectionResult(id);
+        }
 
-		System.out.println("measuring event delay: election took "
-				+ (middle - start)
-				+ " ms, time until all ibisses received result: "
-				+ (end - middle) + " ms");
+        long end = System.currentTimeMillis();
 
-	}
+        System.out.println("measuring event delay: election took "
+                + (middle - start)
+                + " ms, time until all ibisses received result: "
+                + (end - middle) + " ms");
 
-	public static void main(String[] args) throws Exception {
-		int threads = 1;
-		boolean generateEvents = false;
-		boolean measureEventDelay = false;
+    }
 
-		Log.initLog4J("ibis.ipl.apps", Level.ERROR);
+    public static void main(String[] args) throws Exception {
+        int threads = 1;
+        boolean generateEvents = false;
+        boolean measureEventDelay = false;
 
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equalsIgnoreCase("--threads")) {
-				i++;
-				threads = new Integer(args[i]);
-			} else if (args[i].equalsIgnoreCase("--events")) {
-				generateEvents = true;
-			} else if (args[i].equalsIgnoreCase("--delay")) {
-				measureEventDelay = true;
-				System.err.println("unknown option: " + args[i]);
-				System.exit(1);
-			}
-		}
+        Log.initLog4J("ibis.ipl.apps", Level.ERROR);
 
-		Main main = new Main(threads, generateEvents);
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equalsIgnoreCase("--threads")) {
+                i++;
+                threads = new Integer(args[i]);
+            } else if (args[i].equalsIgnoreCase("--events")) {
+                generateEvents = true;
+            } else if (args[i].equalsIgnoreCase("--delay")) {
+                measureEventDelay = true;
+                System.err.println("unknown option: " + args[i]);
+                System.exit(1);
+            }
+        }
 
-		logger.debug("created ibisses, running main loop");
+        Main main = new Main(threads, generateEvents);
 
-		while (true) {
-			main.printStats();
-			if (measureEventDelay) {
-				main.measureDelay();
-			}
-			Thread.sleep(10000);
-		}
-	}
+        logger.debug("created ibisses, running main loop");
+
+        while (true) {
+            main.printStats();
+            if (measureEventDelay) {
+                main.measureDelay();
+            }
+            Thread.sleep(10000);
+        }
+    }
 
 }
