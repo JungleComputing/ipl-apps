@@ -11,8 +11,7 @@
 
     <property name="src" location="src" />
     <property name="tmp" location="tmp" />
-    <property name="lib" location="lib" />
-    <property name="jar" location="${lib}/ipl-apps.jar" />
+    <property name="jar" location="ipl-apps.jar" />
 
     <target name="init">
 	<!-- Create the time stamp -->
@@ -53,8 +52,6 @@
     </target>
 
     <target name="build" depends="ibisc" description="build the JAR file">
-	<!-- Create the lib directory -->
-	<mkdir dir="${lib}" />
 
 	<!-- Put everything in ${tmp} into the jar file -->
 	<jar jarfile="${jar}" basedir="${tmp}" />
@@ -64,7 +61,7 @@
     </target>
 
     <target name="clean" description="clean up">
-	<delete dir="${lib}" />
+	<delete file="${jar}" />
     </target>
 
 </project>
