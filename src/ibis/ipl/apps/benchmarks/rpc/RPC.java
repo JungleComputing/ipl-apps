@@ -54,7 +54,6 @@ class RszHandler implements RegistryEventHandler {
         // We don't do this.
     }
 
-    @Override
     public void electionResult(String electionName, IbisIdentifier winner) {
         // IGNORE
     }

@@ -15,7 +15,7 @@ public class PropertyFileGenerator {
             Properties properties, PrintStream out) {
 
         for (Map.Entry<String, String> description : descriptions.entrySet()) {
-            out.println("# " + description.getValue());
+            out.println("## " + description.getValue());
             String value = properties.getProperty(description.getKey());
             if (value == null) {
                 out.println("# " + description.getKey() + " = ");
@@ -30,6 +30,7 @@ public class PropertyFileGenerator {
     public static void main(String[] args) {
 
         try {
+            System.out.println("writing ibis.properties.example file");
 
             PrintStream out = new PrintStream("ibis.properties.example");
 

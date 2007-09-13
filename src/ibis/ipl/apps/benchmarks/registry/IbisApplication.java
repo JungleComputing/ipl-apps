@@ -172,7 +172,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         logger.info("got signal: " + signal);
     }
 
-    @Override
     public void electionResult(String electionName, IbisIdentifier winner) {
         logger.info("got election result for :\"" + electionName + "\" : "
                 + winner);
