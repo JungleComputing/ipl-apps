@@ -137,6 +137,11 @@ class RszHandler implements OpenConfig, RegistryEventHandler {
     {
         return members;
     }
+    
+    public void electionResult(String electionName, IbisIdentifier winner)
+    {
+        // We don't do this.
+    }
 }
 
 class LevelRecorder implements MessageUpcall {

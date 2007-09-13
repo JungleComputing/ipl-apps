@@ -54,6 +54,11 @@ class RszHandler implements RegistryEventHandler {
         // We don't do this.
     }
 
+    @Override
+    public void electionResult(String electionName, IbisIdentifier winner) {
+        // IGNORE
+    }
+    
     void sync(int n) {
         synchronized (this) {
             while (idents.size() < n) {
@@ -64,6 +69,7 @@ class RszHandler implements RegistryEventHandler {
             }
         }
     }
+
 
 }
 

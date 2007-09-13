@@ -1,7 +1,7 @@
 package ibis.ipl.apps.propertyFileGenerator;
 
 import ibis.ipl.IbisProperties;
-import ibis.ipl.impl.registry.central.RegistryProperties;
+import ibis.ipl.impl.registry.newCentral.RegistryProperties;
 import ibis.server.ServerProperties;
 import ibis.server.poolInfo.PoolInfoProperties;
 

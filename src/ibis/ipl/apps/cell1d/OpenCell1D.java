@@ -133,6 +133,11 @@ class RszHandler implements OpenConfig, RegistryEventHandler {
     {
         // We don't do this.
     }
+    
+    public void electionResult(String electionName, IbisIdentifier winner)
+    {
+        // We don't do this.
+    }
 
     public synchronized int getMemberCount()
     {

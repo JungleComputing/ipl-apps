@@ -30,8 +30,8 @@ import org.apache.log4j.Logger;
 final class IbisApplication implements Runnable, RegistryEventHandler,
         MessageUpcall {
 
-    private static final Logger logger =
-            Logger.getLogger(IbisApplication.class);
+    private static final Logger logger = Logger
+            .getLogger(IbisApplication.class);
 
     private final boolean generateEvents;
 
@@ -59,14 +59,11 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         ibisses = new HashSet<IbisIdentifier>();
         random = new Random();
 
-        portType =
-                new PortType(PortType.CONNECTION_MANY_TO_ONE,
-                        PortType.SERIALIZATION_OBJECT,
-                        PortType.RECEIVE_AUTO_UPCALLS);
+        portType = new PortType(PortType.CONNECTION_MANY_TO_ONE,
+                PortType.SERIALIZATION_OBJECT, PortType.RECEIVE_AUTO_UPCALLS);
 
-        IbisCapabilities s =
-                new IbisCapabilities(IbisCapabilities.MEMBERSHIP,
-                        IbisCapabilities.ELECTIONS, IbisCapabilities.SIGNALS);
+        IbisCapabilities s = new IbisCapabilities(IbisCapabilities.MEMBERSHIP,
+                IbisCapabilities.ELECTIONS, IbisCapabilities.SIGNALS);
 
         logger.debug("creating ibis");
         ibis = IbisFactory.createIbis(s, null, true, this, portType);
@@ -175,6 +172,12 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         logger.info("got signal: " + signal);
     }
 
+    @Override
+    public void electionResult(String electionName, IbisIdentifier winner) {
+        logger.info("got election result for :\"" + electionName + "\" : "
+                + winner);
+    }
+
     private static class Shutdown extends Thread {
         private final IbisApplication app;
 
@@ -226,8 +229,8 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
             return new IbisIdentifier[0];
         }
 
-        IbisIdentifier[] result =
-                new IbisIdentifier[random.nextInt(nrOfIbisses())];
+        IbisIdentifier[] result = new IbisIdentifier[random
+                .nextInt(nrOfIbisses())];
 
         for (int i = 0; i < result.length; i++) {
             result[i] = getRandomIbis();
@@ -291,15 +294,14 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
                             // make sure this election exists
                             ibis.registry().elect("bla");
 
-                            IbisIdentifier id2 =
-                                    ibis.registry().getElectionResult("bla");
+                            IbisIdentifier id2 = ibis.registry()
+                                    .getElectionResult("bla");
                             break;
                         case 3:
                             logger
                                     .debug("doing getElectionResult with timeout");
-                            IbisIdentifier id3 =
-                                    ibis.registry().getElectionResult("bla",
-                                            100);
+                            IbisIdentifier id3 = ibis.registry()
+                                    .getElectionResult("bla", 100);
                             logger.debug("done getElectionResult with timeout");
                             break;
                         case 4:
@@ -349,4 +351,5 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 
         receivedStats(stats);
     }
+
 }
