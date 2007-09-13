@@ -111,6 +111,22 @@ public class SOR {
 
     private Reducer reducer;
 
+    IbisCapabilities reqprops = new IbisCapabilities(
+            IbisCapabilities.CLOSEDWORLD,
+            IbisCapabilities.ELECTIONS);
+        
+    PortType portTypeReduce = new PortType(PortType.SERIALIZATION_DATA,
+            PortType.CONNECTION_MANY_TO_ONE, PortType.COMMUNICATION_RELIABLE,
+            PortType.RECEIVE_EXPLICIT);
+
+    PortType portTypeBroadcast = new PortType(PortType.SERIALIZATION_DATA,
+            PortType.CONNECTION_ONE_TO_MANY, PortType.COMMUNICATION_RELIABLE,
+            PortType.RECEIVE_EXPLICIT);
+
+    PortType portTypeNeighbour = new PortType(PortType.SERIALIZATION_DATA,
+            PortType.COMMUNICATION_RELIABLE, PortType.CONNECTION_ONE_TO_ONE,
+            PortType.RECEIVE_EXPLICIT);
+
     SOR(int N, int maxIters, boolean reduceAlways, boolean async,
             boolean upcall, int itersPerReduce, boolean clusterReduce)
             throws IOException {
@@ -227,20 +243,9 @@ public class SOR {
     }
 
     private void createIbis() throws IOException {
-        IbisCapabilities reqprops = new IbisCapabilities(
-                IbisCapabilities.CLOSEDWORLD,
-                IbisCapabilities.ELECTIONS);
-        
-        PortType portTypeReduce = new PortType(PortType.SERIALIZATION_DATA,
-                PortType.CONNECTION_MANY_TO_ONE, PortType.COMMUNICATION_RELIABLE,
-                PortType.RECEIVE_EXPLICIT);
-
-        PortType portTypeBroadcast = new PortType(PortType.SERIALIZATION_DATA,
-                PortType.CONNECTION_ONE_TO_MANY, PortType.COMMUNICATION_RELIABLE,
-                PortType.RECEIVE_EXPLICIT);
         try {
             ibis = IbisFactory.createIbis(reqprops, null, true, null,
-                    portTypeReduce, portTypeBroadcast);
+                    portTypeReduce, portTypeBroadcast, portTypeNeighbour);
         } catch (Exception e) {
             System.err
                     .println("Could not find an Ibis that can run this SOR implementation");
@@ -277,9 +282,6 @@ public class SOR {
 
     private void createNeighbourPorts() throws IOException {
 
-        PortType portTypeNeighbour = new PortType(PortType.SERIALIZATION_DATA,
-                PortType.COMMUNICATION_RELIABLE, PortType.CONNECTION_ONE_TO_ONE,
-                PortType.RECEIVE_EXPLICIT);
 
         if (rank != 0) {
             if (upcall) {
