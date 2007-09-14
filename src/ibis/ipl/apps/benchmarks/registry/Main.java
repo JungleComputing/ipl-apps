@@ -5,10 +5,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Random;
 
-import ibis.ipl.IbisCreationFailedException;
-import ibis.util.Log;
-
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public final class Main {
@@ -17,10 +13,7 @@ public final class Main {
 
     private final IbisApplication[] apps;
 
-    private final boolean generateEvents;
-
     Main(int threads, boolean generateEvents) throws Exception {
-        this.generateEvents = generateEvents;
 
         long start = System.currentTimeMillis();
 
@@ -76,8 +69,6 @@ public final class Main {
         int threads = 1;
         boolean generateEvents = false;
         boolean measureEventDelay = false;
-
-        Log.initLog4J("ibis.ipl.apps", Level.ERROR);
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equalsIgnoreCase("--threads")) {

@@ -195,16 +195,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         return ibisses.size();
     }
 
-    private synchronized void waitUntilStopped() {
-        while (!stopped) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                // IGNORE
-            }
-        }
-    }
-
     private synchronized IbisIdentifier getRandomIbis() {
         if (ibisses.isEmpty()) {
             return null;
@@ -286,20 +276,20 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
                             break;
                         case 1:
                             logger.debug("doing elect");
-                            IbisIdentifier id1 = ibis.registry().elect("bla");
+                            ibis.registry().elect("bla");
                             break;
                         case 2:
                             logger.debug("doing getElectionResult");
                             // make sure this election exists
                             ibis.registry().elect("bla");
 
-                            IbisIdentifier id2 = ibis.registry()
+                            ibis.registry()
                                     .getElectionResult("bla");
                             break;
                         case 3:
                             logger
                                     .debug("doing getElectionResult with timeout");
-                            IbisIdentifier id3 = ibis.registry()
+                            ibis.registry()
                                     .getElectionResult("bla", 100);
                             logger.debug("done getElectionResult with timeout");
                             break;
