@@ -259,7 +259,7 @@ final class Main {
 
 	    IbisCapabilities s = new IbisCapabilities(
                     IbisCapabilities.CLOSEDWORLD,
-                    IbisCapabilities.ELECTIONS);
+                    IbisCapabilities.ELECTIONS_STRICT);
             
             PortType t = new PortType(       
                     PortType.COMMUNICATION_RELIABLE,

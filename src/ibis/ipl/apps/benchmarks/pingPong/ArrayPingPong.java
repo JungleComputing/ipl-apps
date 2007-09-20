@@ -94,7 +94,7 @@ static class ExplicitReceiver {
         try {
             IbisCapabilities s = new IbisCapabilities(
                     IbisCapabilities.CLOSEDWORLD,
-                    IbisCapabilities.ELECTIONS);
+                    IbisCapabilities.ELECTIONS_STRICT);
             
             PortType t = new PortType(
                     PortType.SERIALIZATION_OBJECT,

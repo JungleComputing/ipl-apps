@@ -62,8 +62,10 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         portType = new PortType(PortType.CONNECTION_MANY_TO_ONE,
                 PortType.SERIALIZATION_OBJECT, PortType.RECEIVE_AUTO_UPCALLS);
 
-        IbisCapabilities s = new IbisCapabilities(IbisCapabilities.MEMBERSHIP,
-                IbisCapabilities.ELECTIONS, IbisCapabilities.SIGNALS);
+        IbisCapabilities s = new IbisCapabilities(
+                IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED,
+                IbisCapabilities.ELECTIONS_STRICT,
+                IbisCapabilities.SIGNALS);
 
         logger.debug("creating ibis");
         ibis = IbisFactory.createIbis(s, null, true, this, portType);

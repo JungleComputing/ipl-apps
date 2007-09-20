@@ -385,7 +385,7 @@ class Latency {
         try {
 
             IbisCapabilities s = new IbisCapabilities(
-                    IbisCapabilities.ELECTIONS
+                    IbisCapabilities.ELECTIONS_STRICT
             );
             PortType t = new PortType(
                     noneSer ? PortType.SERIALIZATION_BYTE : PortType.SERIALIZATION_OBJECT,

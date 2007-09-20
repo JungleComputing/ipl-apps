@@ -512,7 +512,7 @@ public final class Ping {
 
             IbisCapabilities props = new IbisCapabilities(
                     IbisCapabilities.CLOSEDWORLD,
-                    IbisCapabilities.ELECTIONS);
+                    IbisCapabilities.ELECTIONS_STRICT);
             
             PortType t = new PortType(
                     PortType.SERIALIZATION_BYTE,

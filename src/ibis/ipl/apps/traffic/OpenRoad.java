@@ -904,7 +904,7 @@ class OpenCell1D implements OpenConfig {
             long startTime = System.currentTimeMillis();
 
             IbisCapabilities s = new IbisCapabilities(
-                    IbisCapabilities.MEMBERSHIP
+                    IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED
                     );
             
             PortType updatePort = new PortType(

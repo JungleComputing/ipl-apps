@@ -1033,8 +1033,8 @@ class RPC implements MessageUpcall, Runnable, ReceivePortConnectUpcall,
 
         IbisCapabilities s = new IbisCapabilities(
                 IbisCapabilities.CLOSEDWORLD,
-                IbisCapabilities.MEMBERSHIP,
-                IbisCapabilities.ELECTIONS);
+                IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED,
+                IbisCapabilities.ELECTIONS_STRICT);
         requestPortType = new PortType(PortType.SERIALIZATION_OBJECT,
                 PortType.COMMUNICATION_RELIABLE, PortType.RECEIVE_AUTO_UPCALLS,
                 PortType.RECEIVE_EXPLICIT, PortType.CONNECTION_UPCALLS,

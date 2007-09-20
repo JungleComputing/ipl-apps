@@ -41,7 +41,7 @@ final class MasterWorker {
         try {
 
             IbisCapabilities s = new IbisCapabilities(
-                    IbisCapabilities.ELECTIONS
+                    IbisCapabilities.ELECTIONS_STRICT
                     );
             
             manyToOneType = new PortType(
