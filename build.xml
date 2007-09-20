@@ -11,7 +11,8 @@
 
     <property name="src" location="src" />
     <property name="tmp" location="tmp" />
-    <property name="jar" location="ipl-apps.jar" />
+    <property name="lib" location="lib" />
+    <property name="jar" location="${lib}/ipl-apps.jar" />
 
     <target name="init">
 	<!-- Create the time stamp -->
@@ -19,7 +20,7 @@
 
 	<!-- Create the build directory structure used by compile -->
 	<mkdir dir="${tmp}" />
-
+	<mkdir dir="${lib}" />
     </target>
 
     <target name="set-classpath">
@@ -30,7 +31,7 @@
 	</path>
     </target>
 
-    <target name="compile" depends="init,set-classpath"
+    <target name="compile" depends="clean,init,set-classpath"
 	description="Compile the application sources">
 	<!-- Compile the java code from ${src} into ${tmp} -->
 	<javac srcdir="${src}" destdir="${tmp}" debug="on" >
@@ -61,7 +62,8 @@
     </target>
 
     <target name="clean" description="clean up">
-	<delete file="${jar}" />
+	<delete dir="${tmp}" />
+	<delete dir="${lib}" />
     </target>
 
 </project>
