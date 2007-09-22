@@ -3,7 +3,7 @@ package ibis.ipl.apps.propertyFileGenerator;
 import ibis.ipl.IbisProperties;
 import ibis.ipl.impl.registry.central.RegistryProperties;
 import ibis.server.ServerProperties;
-import ibis.server.poolInfo.PoolInfoProperties;
+import ibis.poolInfo.PoolInfoProperties;
 
 import java.io.PrintStream;
 import java.util.Map;
