@@ -1,13 +1,7 @@
 package ibis.ipl.apps.benchmarks.registry;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -16,19 +10,13 @@ import ibis.ipl.IbisCapabilities;
 import ibis.ipl.IbisCreationFailedException;
 import ibis.ipl.IbisFactory;
 import ibis.ipl.IbisIdentifier;
-import ibis.ipl.MessageUpcall;
 import ibis.ipl.PortType;
-import ibis.ipl.ReadMessage;
-import ibis.ipl.ReceivePort;
 import ibis.ipl.RegistryEventHandler;
-import ibis.ipl.SendPort;
-import ibis.ipl.WriteMessage;
 import ibis.util.ThreadPool;
 
 import org.apache.log4j.Logger;
 
-final class IbisApplication implements Runnable, RegistryEventHandler,
-        MessageUpcall {
+final class IbisApplication implements Runnable, RegistryEventHandler {
 
     private static final Logger logger = Logger
             .getLogger(IbisApplication.class);
@@ -45,41 +33,27 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 
     private final PortType portType;
 
-    private final ReceivePort receivePort;
-
-    private final Stats stats;
-
-    private final Map<IbisIdentifier, Stats> gatheredStats;
-
-    IbisApplication(boolean generateEvents, long startTime)
+    IbisApplication(boolean generateEvents)
             throws IbisCreationFailedException, IOException {
         this.generateEvents = generateEvents;
-        gatheredStats = new HashMap<IbisIdentifier, Stats>();
 
         ibisses = new HashSet<IbisIdentifier>();
         random = new Random();
 
-        portType = new PortType(PortType.CONNECTION_MANY_TO_ONE,
-                PortType.SERIALIZATION_OBJECT, PortType.RECEIVE_AUTO_UPCALLS);
+        portType = new PortType(PortType.CONNECTION_ONE_TO_ONE,
+                PortType.SERIALIZATION_OBJECT);
 
         IbisCapabilities s = new IbisCapabilities(
                 IbisCapabilities.MEMBERSHIP_TOTALLY_ORDERED,
-                IbisCapabilities.ELECTIONS_STRICT,
-                IbisCapabilities.SIGNALS);
+                IbisCapabilities.ELECTIONS_STRICT, IbisCapabilities.SIGNALS);
 
         logger.debug("creating ibis");
         ibis = IbisFactory.createIbis(s, null, true, this, portType);
 
         logger.debug("ibis created, enabling upcalls");
 
-        stats = new Stats(ibis.identifier(), startTime);
-
         ibis.registry().enableEvents();
         logger.debug("upcalls enabled");
-
-        receivePort = ibis.createReceivePort(portType, "stats", this);
-        receivePort.enableConnections();
-        receivePort.enableMessageUpcalls();
 
         // register shutdown hook
         try {
@@ -89,57 +63,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
         }
 
         ThreadPool.createNew(this, "application");
-    }
-
-    private synchronized void sendStats() {
-        try {
-            IbisIdentifier master = ibis.registry().elect("master");
-
-            SendPort sendPort = ibis.createSendPort(portType);
-            sendPort.connect(master, "stats");
-
-            WriteMessage message = sendPort.newMessage();
-            message.writeObject(stats);
-
-            message.finish();
-            sendPort.close();
-
-        } catch (Exception e) {
-            // IGNORE
-        }
-    }
-
-    private synchronized void writeStats() throws FileNotFoundException {
-        if (gatheredStats.isEmpty()) {
-            return;
-        }
-
-        File file = new File("stats");
-        if (file.exists()) {
-            file.renameTo(new File("stats.old"));
-        }
-
-        PrintWriter writer = new PrintWriter(file);
-
-        writer.println("stats at " + new Date(System.currentTimeMillis()));
-        writer.println("//  time   -  number of ibisses");
-        writer.println("//(seconds)");
-
-        long currentTime = stats.currentTime();
-        long interval = 1000;
-
-        for (int i = 0; i < currentTime; i += interval) {
-            long total = 0;
-            for (Stats s : gatheredStats.values()) {
-                total += s.valueAt(i);
-            }
-            double value = (double) total / (double) gatheredStats.size();
-
-            writer.printf("%d  %.4f\n", i, value);
-
-        }
-        writer.close();
-
     }
 
     private synchronized boolean stopped() {
@@ -154,19 +77,16 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
 
     public synchronized void joined(IbisIdentifier ident) {
         ibisses.add(ident);
-        stats.update(ibisses.size());
         logger.info("upcall for join of: " + ident);
     }
 
     public synchronized void left(IbisIdentifier ident) {
         ibisses.remove(ident);
-        stats.update(ibisses.size());
         logger.info("upcall for leave of: " + ident);
     }
 
     public synchronized void died(IbisIdentifier corpse) {
         ibisses.remove(corpse);
-        stats.update(ibisses.size());
         logger.info("upcall for died of: " + corpse);
     }
 
@@ -261,9 +181,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
                         return;
                     }
 
-                    sendStats();
-                    writeStats();
-
                     if (generateEvents) {
 
                         int nextCase = random.nextInt(6);
@@ -285,14 +202,12 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
                             // make sure this election exists
                             ibis.registry().elect("bla");
 
-                            ibis.registry()
-                                    .getElectionResult("bla");
+                            ibis.registry().getElectionResult("bla");
                             break;
                         case 3:
                             logger
                                     .debug("doing getElectionResult with timeout");
-                            ibis.registry()
-                                    .getElectionResult("bla", 100);
+                            ibis.registry().getElectionResult("bla", 100);
                             logger.debug("done getElectionResult with timeout");
                             break;
                         case 4:
@@ -323,24 +238,6 @@ final class IbisApplication implements Runnable, RegistryEventHandler,
             }
         }
 
-    }
-
-    private synchronized void receivedStats(Stats stats) {
-        gatheredStats.put(stats.getIbis(), stats);
-    }
-
-    public void upcall(ReadMessage readMessage) throws IOException {
-        Stats stats;
-        try {
-            stats = (Stats) readMessage.readObject();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        readMessage.finish();
-
-        receivedStats(stats);
     }
 
 }

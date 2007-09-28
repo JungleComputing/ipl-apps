@@ -15,12 +15,10 @@ public final class Main {
 
     Main(int threads, boolean generateEvents) throws Exception {
 
-        long start = System.currentTimeMillis();
-
         apps = new IbisApplication[threads];
         for (int i = 0; i < threads; i++) {
             logger.debug("starting thread " + i + " of " + threads);
-            apps[i] = new IbisApplication(generateEvents, start);
+            apps[i] = new IbisApplication(generateEvents);
         }
     }
 
@@ -31,44 +29,16 @@ public final class Main {
         }
         double average = (double) totalSeen / (double) apps.length;
 
-        String date =
-                DateFormat.getTimeInstance().format(
-                        new Date(System.currentTimeMillis()));
+        String date = DateFormat.getTimeInstance().format(
+                new Date(System.currentTimeMillis()));
 
         System.out.printf(date + " average seen members = %.2f\n", average,
                 apps.length);
     }
 
-    void measureDelay() throws IOException {
-        Random random = new Random();
-
-        String id = Long.toString(random.nextLong());
-
-        logger.debug("running election: " + id);
-
-        long start = System.currentTimeMillis();
-
-        apps[0].doElect(id);
-
-        long middle = System.currentTimeMillis();
-
-        for (int i = 0; i < apps.length; i++) {
-            apps[i].getElectionResult(id);
-        }
-
-        long end = System.currentTimeMillis();
-
-        System.out.println("measuring event delay: election took "
-                + (middle - start)
-                + " ms, time until all ibisses received result: "
-                + (end - middle) + " ms");
-
-    }
-
     public static void main(String[] args) throws Exception {
         int threads = 1;
         boolean generateEvents = false;
-        boolean measureEventDelay = false;
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equalsIgnoreCase("--threads")) {
@@ -76,8 +46,7 @@ public final class Main {
                 threads = new Integer(args[i]);
             } else if (args[i].equalsIgnoreCase("--events")) {
                 generateEvents = true;
-            } else if (args[i].equalsIgnoreCase("--delay")) {
-                measureEventDelay = true;
+            } else {
                 System.err.println("unknown option: " + args[i]);
                 System.exit(1);
             }
@@ -88,10 +57,6 @@ public final class Main {
         logger.debug("created ibisses, running main loop");
 
         while (true) {
-            main.printStats();
-            if (measureEventDelay) {
-                main.measureDelay();
-            }
             Thread.sleep(10000);
         }
     }
