@@ -266,13 +266,10 @@ final class Main {
                     PortType.CONNECTION_ONE_TO_ONE,
                     PortType.RECEIVE_AUTO_UPCALLS,
                     PortType.RECEIVE_EXPLICIT,
-                    PortType.SERIALIZATION_OBJECT);
+                    ibisSer ? PortType.SERIALIZATION_OBJECT_IBIS
+                            : PortType.SERIALIZATION_OBJECT_SUN);
             
-            Properties attribs = new Properties();
-            attribs.setProperty("ibis.serialization",
-                    ibisSer ? "ibis" : "sun");
-
-	    ibis = IbisFactory.createIbis(s, attribs, true, null, t);
+	    ibis = IbisFactory.createIbis(s, null, t);
 
 	    if (verbose) { 
 		System.out.println("Ibis created; getting registry ...");

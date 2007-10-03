@@ -1046,7 +1046,7 @@ class RPC implements MessageUpcall, Runnable, ReceivePortConnectUpcall,
                 sequenced ? PortType.COMMUNICATION_NUMBERED : PortType.COMMUNICATION_FIFO,
                 PortType.CONNECTION_MANY_TO_ONE);
 
-        myIbis = IbisFactory.createIbis(s, null, true, rszHandler,
+        myIbis = IbisFactory.createIbis(s, rszHandler,
                 requestPortType, replyPortType);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -94,7 +94,7 @@ static class ExplicitReceiver {
                     PortType.COMMUNICATION_RELIABLE,
                     PortType.RECEIVE_EXPLICIT);
             
-            ibis = IbisFactory.createIbis(s, null, true, null, t);
+            ibis = IbisFactory.createIbis(s, null, t);
 
             registry = ibis.registry();
 

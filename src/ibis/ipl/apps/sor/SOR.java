@@ -244,7 +244,7 @@ public class SOR {
 
     private void createIbis() throws IOException {
         try {
-            ibis = IbisFactory.createIbis(reqprops, null, true, null,
+            ibis = IbisFactory.createIbis(reqprops, null,
                     portTypeReduce, portTypeBroadcast, portTypeNeighbour);
         } catch (Exception e) {
             System.err
