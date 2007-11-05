@@ -1,4 +1,4 @@
-package ibisApps.sor;
+package ibis.ipl.apps.sor;
 
 /* $Id$ */
 

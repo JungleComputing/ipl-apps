@@ -1,4 +1,4 @@
-package ibisApps.cell1d;
+package ibis.ipl.apps.cell1d;
 
 // File: $Id$
 

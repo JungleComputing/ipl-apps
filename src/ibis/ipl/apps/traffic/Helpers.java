@@ -1,4 +1,4 @@
-package ibisApps.traffic;
+package ibis.ipl.apps.traffic;
 
 // File: $Id$
 
