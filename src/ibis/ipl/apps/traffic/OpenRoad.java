@@ -129,7 +129,15 @@ class RszHandler implements OpenConfig, RegistryEventHandler {
         members--;
     }
 
-    public void gotSignal( String signal ) {
+    public void gotSignal( String signal, IbisIdentifier id ) {
+        // We don't do this.
+    }
+
+    public void poolTerminated( IbisIdentifier id ) {
+        // We don't do this.
+    }
+
+    public void poolClosed() {
         // We don't do this.
     }
 
