@@ -98,7 +98,7 @@ public class TreeReducer implements ReducerInterface {
         }
 
         if (children > 0) {
-            reduceSbcast = ibis.createSendPort(portTypeBroadcast, "SORreduceS");
+            reduceSbcast = ibis.createSendPort(portTypeBroadcast, "SORreduceSBC");
             for (int c = 0; c < 2; c++) {
                 if (child[c] != LEAF_NODE) {
                     IbisIdentifier id = registry.getElectionResult("" + child[c]);

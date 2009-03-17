@@ -178,7 +178,7 @@ public class ClusterReducer implements ReducerInterface {
 
         if (children > 0) {
             reduceSbcast = ibis.createSendPort(portTypeBroadcast,
-                    "SORreduceS");
+                    "SORreduceSBC");
             for (int c = 0; c < 2; c++) {
                 if (child[c] != LEAF_NODE) {
                     IbisIdentifier id = instances[c];
