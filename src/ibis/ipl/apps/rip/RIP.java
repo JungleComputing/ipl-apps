@@ -14,7 +14,6 @@ import ibis.ipl.WriteMessage;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Rest.In.Pieces. Distributed sleep Applcation.
@@ -43,13 +42,6 @@ public class RIP implements MessageUpcall {
 
 	private final Ibis myIbis;
 	
-
-	private ReceivePort requestSendPort;
-	private ReceivePort requestReceivePort;
-
-	private Map<IbisIdentifier,SendPort> replySendPort;
-	private ReceivePort replyReceivePort;
-
 	/**
 	 * Constructor. Actually does all the work too :)
 	 */

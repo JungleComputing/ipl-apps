@@ -64,7 +64,7 @@ class SeqRoad implements Configuration {
     private void updateVehiclePositions( int tick )
     {
         /** For each lane, the first car we haven't updated yet. */
-        Vehicle front[] = (Vehicle []) lanes.clone();
+        Vehicle front[] = lanes.clone();
 
         /** For each lane, the position of the car behind the wave front. */
         Vehicle prev[] = new Vehicle[LANES];

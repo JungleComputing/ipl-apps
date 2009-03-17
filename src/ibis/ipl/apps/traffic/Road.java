@@ -66,7 +66,7 @@ class Road implements Configuration {
     private void updateVehiclePositions( int tick )
     {
         /** For each lane, the first car we haven't updated yet. */
-        Vehicle front[] = (Vehicle []) lanes.clone();
+        Vehicle front[] = lanes.clone();
 
         /** For each lane, the position of the car behind the wave front. */
         Vehicle prev[] = new Vehicle[LANES];
@@ -279,7 +279,7 @@ class Road implements Configuration {
         r.runSimulation();
         if( me == 0 ){
             long endTime = System.currentTimeMillis();
-            double time = ((double) (endTime - startTime))/1000.0;
+            double time = (endTime - startTime)/1000.0;
 
             System.out.println( "ExecutionTime: " + time );
             System.out.println( "Launched " + Vehicle.labeler + " vehicles" );

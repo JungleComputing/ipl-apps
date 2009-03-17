@@ -1086,7 +1086,7 @@ class OpenCell1D implements OpenConfig {
 
             if( me == 0 ){
                 long endTime = System.currentTimeMillis();
-                double time = ((double) (endTime - startTime))/1000.0;
+                double time = (endTime - startTime)/1000.0;
                 long updates = boardsize*boardsize*(long) count;
 
                 System.out.println( "ExecutionTime: " + time );
