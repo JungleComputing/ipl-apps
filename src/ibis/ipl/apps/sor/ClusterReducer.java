@@ -23,11 +23,25 @@ import ibis.ipl.WriteMessage;
 
 import java.io.IOException;
 
-public class ClusterReducer extends TreeReducer {
+public class ClusterReducer implements ReducerInterface {
+    
+    private static final int LEAF_NODE = -1;
+    
+    private ReceivePort[] reduceRreduce;
 
     private ReceivePort[] reduceRinter;
 
     private SendPort reduceSinter;
+    
+    private SendPort reduceSreduce;
+    
+    private ReceivePort reduceRbcast;
+    
+    private SendPort reduceSbcast;
+    
+    private int parent;
+
+    private int[] child = new int[2];
 
     private int myCluster;
 

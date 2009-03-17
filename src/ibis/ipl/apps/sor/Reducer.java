@@ -25,9 +25,9 @@ import ibis.util.TypedProperties;
 
 import java.io.IOException;
 
-public class Reducer {
+public class Reducer implements ReducerInterface {
 
-    static TypedProperties tp = new TypedProperties(System.getProperties());
+    private static TypedProperties tp = new TypedProperties(System.getProperties());
 
     private final static boolean TIMINGS = tp.getBooleanProperty(
             "timing.reduce", false);
@@ -43,10 +43,6 @@ public class Reducer {
     private SendPort reduceS;
 
     private ReceivePort reduceR;
-
-    protected Reducer() {
-        // Dunno, would not see any use here
-    }
 
     public Reducer(Ibis ibis, int rank, int size) throws IOException {
 

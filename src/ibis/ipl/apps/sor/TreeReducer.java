@@ -25,28 +25,23 @@ import ibis.util.TypedProperties;
 
 import java.io.IOException;
 
-public class TreeReducer extends Reducer {
+public class TreeReducer implements ReducerInterface {
 
     static TypedProperties tp = new TypedProperties(System.getProperties());
 
-    protected ReceivePort[] reduceRreduce;
+    private ReceivePort[] reduceRreduce;
 
-    protected SendPort reduceSreduce;
+    private SendPort reduceSreduce;
 
-    protected ReceivePort reduceRbcast;
+    private ReceivePort reduceRbcast;
 
-    protected SendPort reduceSbcast;
+    private SendPort reduceSbcast;
 
-    protected static final int LEAF_NODE = -1;
+    private static final int LEAF_NODE = -1;
 
-    protected int parent;
+    private int parent;
 
-    protected int[] child = new int[2];
-
-    protected TreeReducer() {
-        // Java needs this. Someday, I will certify as a Java programmer, and
-        // then I will know *why*.
-    }
+    private int[] child = new int[2];
 
     public TreeReducer(Ibis ibis, int rank, int size) throws IOException {
 

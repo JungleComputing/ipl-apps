@@ -109,7 +109,7 @@ public class SOR {
 
     private boolean finished = false;
 
-    private Reducer reducer;
+    private ReducerInterface reducer;
 
     IbisCapabilities reqprops = new IbisCapabilities(
             IbisCapabilities.CLOSED_WORLD,
