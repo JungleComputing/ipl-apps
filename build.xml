@@ -38,7 +38,7 @@
 	</path>
 
 	<!-- Compile the java code from ${src} into ${tmp} -->
-	<javac srcdir="${src}" destdir="${tmp}" debug="on">
+	<javac srcdir="${src}"  source="1.5" target="1.5" destdir="${tmp}" debug="on">
 	    <classpath refid="default.classpath" />
 	    <compilerarg value="-Xlint:unchecked" />
 	</javac>
