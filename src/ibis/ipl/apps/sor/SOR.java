@@ -526,9 +526,6 @@ public class SOR {
     }
 
     private void sendReceive() throws IOException {
-        if (TIMINGS)
-            t_communicate.start();
-
         if (even(rank)) {
             send();
             receive();
@@ -536,9 +533,6 @@ public class SOR {
             receive();
             send();
         }
-
-        if (TIMINGS)
-            t_communicate.stop();
     }
 
     private double compute(int color, int lb, int ub) {
